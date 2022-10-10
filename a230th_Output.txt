@@ -1,0 +1,586 @@
+------+--------------------+-------------+----+---------+------+-----------------------+-------------------------------------------------------------------
+ Line | # File        Line | Line Type   | MX |  Reloc  | Size | Address   Object Code |  Source Code                                                      
+------+--------------------+-------------+----+---------+------+-----------------------+-------------------------------------------------------------------
+    1 |  1 a230th.s      1 | Empty       | 11 |         |    0 | 00/8000               |                                      
+    2 |  1 a230th.s      2 | Comment     | 11 |         |    0 | 00/8000               | ; ORIGINAL PROGRAM :
+    3 |  1 a230th.s      3 | Comment     | 11 |         |    0 | 00/8000               | ; Apple 30th Anniversary Tribute for Apple II by Dave Schmenk
+    4 |  1 a230th.s      4 | Comment     | 11 |         |    0 | 00/8000               | ; Original at https://www.applefritter.com/node/24600#comment-60100
+    5 |  1 a230th.s      5 | Comment     | 11 |         |    0 | 00/8000               | ; Disassembled, Commented, and ported to Apple II by J.B. Langston
+    6 |  1 a230th.s      6 | Comment     | 11 |         |    0 | 00/8000               | ; Assemble with `64tass -b -o a2apple30th.bin -L a2apple30th.lst`
+    7 |  1 a230th.s      7 | Comment     | 11 |         |    0 | 00/8000               | ; https://gist.github.com/jblang/5b9e9ba7e6bbfdc64ad2a55759e401d5
+    8 |  1 a230th.s      8 | Empty       | 11 |         |    0 | 00/8000               |                                      
+    9 |  1 a230th.s      9 | Comment     | 11 |         |    0 | 00/8000               | ; THiS PROGRAM :
+   10 |  1 a230th.s     10 | Comment     | 11 |         |    0 | 00/8000               | ; enhenced with a text animation
+   11 |  1 a230th.s     11 | Comment     | 11 |         |    0 | 00/8000               | ; and mainly with a Delphi program to convert any BMP 40x23 4 bits grey pixels image 
+   12 |  1 a230th.s     12 | Comment     | 11 |         |    0 | 00/8000               | ; to data to copy/paste at the end of this program.
+   13 |  1 a230th.s     13 | Comment     | 11 |         |    0 | 00/8000               | ; see https://github.com/bruno185/Delphi-program-for-Apple-II-text-mode-image-display
+   14 |  1 a230th.s     14 | Empty       | 11 |         |    0 | 00/8000               |                                      
+   15 |  1 a230th.s     15 | Equivalence | 11 |         |    0 | 00/8000               | KEYBD       equ       $c000          ; keyboard register
+   16 |  1 a230th.s     16 | Equivalence | 11 |         |    0 | 00/8000               | KBSTRDBE    equ       $c010          ; keyboard strobe register
+   17 |  1 a230th.s     17 | Equivalence | 11 |         |    0 | 00/8000               | spkr        equ       $c030          ; clic
+   18 |  1 a230th.s     18 | Equivalence | 11 |         |    0 | 00/8000               | offscreen   equ       $2000          ; base address of offscreen storage
+   19 |  1 a230th.s     19 | Equivalence | 11 |         |    0 | 00/8000               | gbascalc    equ       $f847          ; calc Address
+   20 |  1 a230th.s     20 | Equivalence | 11 |         |    0 | 00/8000               | home        equ       $fc58          
+   21 |  1 a230th.s     21 | Equivalence | 11 |         |    0 | 00/8000               | vtab        equ       $fc22          ; Moves the cursor to line in CV ($25).
+   22 |  1 a230th.s     22 | Equivalence | 11 |         |    0 | 00/8000               | cout        equ       $fded          
+   23 |  1 a230th.s     23 | Equivalence | 11 |         |    0 | 00/8000               | wait        equ       $fca8          
+   24 |  1 a230th.s     24 | Empty       | 11 |         |    0 | 00/8000               |                                      
+   25 |  1 a230th.s     25 | Equivalence | 11 |         |    0 | 00/8000               | ptr         equ       $06            ; pointer to current image
+   26 |  1 a230th.s     26 | Equivalence | 11 |         |    0 | 00/8000               | ptrlu       equ       $08            
+   27 |  1 a230th.s     27 | Equivalence | 11 |         |    0 | 00/8000               | cv          equ       $25            
+   28 |  1 a230th.s     28 | Equivalence | 11 |         |    0 | 00/8000               | gbasl       equ       $26            ; base address of text line, given by gbascalc
+   29 |  1 a230th.s     29 | Empty       | 11 |         |    0 | 00/8000               |                                      
+   30 |  1 a230th.s     30 | Directive   | 11 |         |    0 | 00/8000               |             XC                       ; allow 65c02 opcodes
+   31 |  1 a230th.s     31 | Empty       | 11 |         |    0 | 00/8000               |                                      
+   32 |  1 a230th.s     32 | Directive   | 11 |         |    0 | 00/8000               | playnote    MAC                      
+   33 |  1 a230th.s     33 | Directive   | 11 |         |    0 | 00/8000               |             pha                      ; save A
+   34 |  1 a230th.s     34 | Directive   | 11 |         |    0 | 00/8000               |             txa                      
+   35 |  1 a230th.s     35 | Directive   | 11 |         |    0 | 00/8000               |             pha                      ; save X
+   36 |  1 a230th.s     36 | Directive   | 11 |         |    0 | 00/8000               |             tya                      
+   37 |  1 a230th.s     37 | Directive   | 11 |         |    0 | 00/8000               |             pha                      ; save Y
+   38 |  1 a230th.s     38 | Directive   | 11 |         |    0 | 00/8000               |             lda       #]1            
+   39 |  1 a230th.s     39 | Directive   | 11 |         |    0 | 00/8000               |             sta       pitch          
+   40 |  1 a230th.s     40 | Directive   | 11 |         |    0 | 00/8000               |             lda       #]2            
+   41 |  1 a230th.s     41 | Directive   | 11 |         |    0 | 00/8000               |             sta       lengthhi       
+   42 |  1 a230th.s     42 | Directive   | 11 |         |    0 | 00/8000               |             lda       #]3            
+   43 |  1 a230th.s     43 | Directive   | 11 |         |    0 | 00/8000               |             sta       lengthlo       
+   44 |  1 a230th.s     44 | Directive   | 11 |         |    0 | 00/8000               | sound       ldy       lengthlo       
+   45 |  1 a230th.s     45 | Directive   | 11 |         |    0 | 00/8000               | bip         lda       $c030          ;4 cycles
+   46 |  1 a230th.s     46 | Directive   | 11 |         |    0 | 00/8000               |             ldx       pitch          ;3 cycles
+   47 |  1 a230th.s     47 | Directive   | 11 |         |    0 | 00/8000               | inloop      nop                      ;2 cycles
+   48 |  1 a230th.s     48 | Directive   | 11 |         |    0 | 00/8000               |                                      
+   49 |  1 a230th.s     49 | Directive   | 11 |         |    0 | 00/8000               |                                      
+   50 |  1 a230th.s     50 | Directive   | 11 |         |    0 | 00/8000               |             nop                      ;2 cycles
+   51 |  1 a230th.s     51 | Directive   | 11 |         |    0 | 00/8000               |             dex                      ;2 cycles
+   52 |  1 a230th.s     52 | Directive   | 11 |         |    0 | 00/8000               |             bne       inloop         ;3 cycles
+   53 |  1 a230th.s     53 | Directive   | 11 |         |    0 | 00/8000               |             dey                      ;2 cycles
+   54 |  1 a230th.s     54 | Directive   | 11 |         |    0 | 00/8000               |             bne       bip            ;3 cycles
+   55 |  1 a230th.s     55 | Directive   | 11 |         |    0 | 00/8000               |             dec       lengthhi       ;5 cycles
+   56 |  1 a230th.s     56 | Directive   | 11 |         |    0 | 00/8000               |             bne       sound          ;3 cycles
+   57 |  1 a230th.s     57 | Directive   | 11 |         |    0 | 00/8000               |             pla                      
+   58 |  1 a230th.s     58 | Directive   | 11 |         |    0 | 00/8000               |             tay                      ; restore Y
+   59 |  1 a230th.s     59 | Directive   | 11 |         |    0 | 00/8000               |             pla                      
+   60 |  1 a230th.s     60 | Directive   | 11 |         |    0 | 00/8000               |             tax                      ; restore X
+   61 |  1 a230th.s     61 | Directive   | 11 |         |    0 | 00/8000               |             pla                      ; restore A
+   62 |  1 a230th.s     62 | Directive   | 11 |         |    0 | 00/8000               |             <<<                      
+   63 |  1 a230th.s     63 | Empty       | 11 |         |    0 | 00/8000               |                                      
+   64 |  1 a230th.s     64 | Comment     | 11 |         |    0 | 00/8000               | ******************** BEGINNIG ********************
+   65 |  1 a230th.s     65 | Directive   | 11 |         |    0 | 00/8000               |             org       $8000          
+   66 |  1 a230th.s     66 | Empty       | 11 |         |    0 | 00/8000               |                                      
+   67 |  1 a230th.s     67 | Code        | 11 |         |    2 | 00/8000 : A9 11       |             lda       #17            
+   68 |  1 a230th.s     68 | Code        | 11 |         |    3 | 00/8002 : 20 ED FD    |             jsr       {$fded}        ; 40 col.
+   69 |  1 a230th.s     69 | Code        | 11 |         |    3 | 00/8005 : 20 58 FC    |             jsr       {$fc58}        
+   70 |  1 a230th.s     70 | Empty       | 11 |         |    0 | 00/8008               |                                      
+   71 |  1 a230th.s     71 | Comment     | 11 |         |    0 | 00/8008               |  ; init lookup table
+   72 |  1 a230th.s     72 | Code        | 11 |         |    2 | 00/8008 : A9 D7       |             lda       #<lookup       ; init prtlu = base address of lookup table
+   73 |  1 a230th.s     73 | Code        | 11 |         |    2 | 00/800A : 85 08       |             sta       {$08}          
+   74 |  1 a230th.s     74 | Code        | 11 |         |    2 | 00/800C : A9 83       |             lda       #>lookup       
+   75 |  1 a230th.s     75 | Code        | 11 |         |    2 | 00/800E : 85 09       |             sta       {$08}+1        
+   76 |  1 a230th.s     76 | Code        | 11 |         |    2 | 00/8010 : A2 0F       |             ldx       #15            ; 16 bytes
+   77 |  1 a230th.s     77 | Empty       | 11 |         |    0 | 00/8012               | luloop                               
+   78 |  1 a230th.s     78 | Code        | 11 |         |    3 | 00/8012 : BD A3 81    |             lda       chars,x        
+   79 |  1 a230th.s     79 | Code        | 11 |         |    1 | 00/8015 : A8          |             tay                      
+   80 |  1 a230th.s     80 | Code        | 11 |         |    1 | 00/8016 : 8A          |             txa                      
+   81 |  1 a230th.s     81 | Code        | 11 |         |    2 | 00/8017 : 91 08       |             sta       ({$08}),y      
+   82 |  1 a230th.s     82 | Code        | 11 |         |    1 | 00/8019 : CA          |             dex                      
+   83 |  1 a230th.s     83 | Code        | 11 |         |    2 | 00/801A : 10 F6       |             bpl       luloop         
+   84 |  1 a230th.s     84 | Empty       | 11 |         |    0 | 00/801C               |                                      
+   85 |  1 a230th.s     85 | Code        | 11 |         |    2 | 00/801C : A9 C6       |             lda       #<image        ;load image address in ptr
+   86 |  1 a230th.s     86 | Code        | 11 |         |    2 | 00/801E : 85 06       |             sta       {$06}          
+   87 |  1 a230th.s     87 | Code        | 11 |         |    2 | 00/8020 : A9 81       |             lda       #>image        
+   88 |  1 a230th.s     88 | Code        | 11 |         |    2 | 00/8022 : 85 07       |             sta       {$06}+1        
+   89 |  1 a230th.s     89 | Code        | 11 |         |    2 | 00/8024 : A9 00       |             lda       #$00           ; init line
+   90 |  1 a230th.s     90 | Code        | 11 |         |    3 | 00/8026 : 8D 9C 81    |             sta       line           
+   91 |  1 a230th.s     91 | Code        | 11 |         |    3 | 00/8029 : 8D 9D 81    |             sta       linelength     ; init current line counter
+   92 |  1 a230th.s     92 | Empty       | 11 |         |    0 | 00/802C               |                                      
+   93 |  1 a230th.s     93 | Empty       | 11 |         |    0 | 00/802C               | decode                               
+   94 |  1 a230th.s     94 | Code        | 11 |         |    2 | 00/802C : A0 00       |             ldy       #$00           
+   95 |  1 a230th.s     95 | Code        | 11 |         |    2 | 00/802E : B1 06       |             lda       ({$06}),y      ; load run length and character offset
+   96 |  1 a230th.s     96 | Code        | 11 |         |    2 | 00/8030 : F0 55       |             beq       anim           ; $00 indicates end of current image
+   97 |  1 a230th.s     97 | Code        | 11 |         |    1 | 00/8032 : 4A          |             lsr       a              ; get run length from upper nybble
+   98 |  1 a230th.s     98 | Code        | 11 |         |    1 | 00/8033 : 4A          |             lsr       a              
+   99 |  1 a230th.s     99 | Code        | 11 |         |    1 | 00/8034 : 4A          |             lsr       a              
+  100 |  1 a230th.s    100 | Code        | 11 |         |    1 | 00/8035 : 4A          |             lsr       a              
+  101 |  1 a230th.s    101 | Code        | 11 |         |    1 | 00/8036 : AA          |             tax                      ; x = number of identical pixels
+  102 |  1 a230th.s    102 | Code        | 11 |         |    2 | 00/8037 : B1 06       |             lda       ({$06}),y      ; get value of pixel from lower nibble
+  103 |  1 a230th.s    103 | Comment     | 11 |         |    0 | 00/8039               |   ;eor #$ff   ; for a negative image
+  104 |  1 a230th.s    104 | Code        | 11 |         |    2 | 00/8039 : 29 0F       |             and       #$0F           ; value = offset in chars table
+  105 |  1 a230th.s    105 | Code        | 11 |         |    1 | 00/803B : A8          |             tay                      
+  106 |  1 a230th.s    106 | Code        | 11 |         |    3 | 00/803C : B9 A3 81    |             lda       chars,y        ; load char at offset
+  107 |  1 a230th.s    107 | Empty       | 11 |         |    0 | 00/803F               |                                      
+  108 |  1 a230th.s    108 | Comment     | 11 |         |    0 | 00/803F               | * poke pixels in offsreen storage
+  109 |  1 a230th.s    109 | Comment     | 11 |         |    0 | 00/803F               | * X = number of pixels (length)
+  110 |  1 a230th.s    110 | Comment     | 11 |         |    0 | 00/803F               | * A = pixel value (=char)
+  111 |  1 a230th.s    111 | Code        | 11 |         |    1 | 00/803F : 48          |             pha                      ; save pixel value
+  112 |  1 a230th.s    112 | Code        | 11 |         |    1 | 00/8040 : 8A          |             txa                      ; save length
+  113 |  1 a230th.s    113 | Code        | 11 |         |    1 | 00/8041 : 48          |             pha                      
+  114 |  1 a230th.s    114 | Code        | 11 |         |    3 | 00/8042 : AD 9C 81    |             lda       line           ; get line number
+  115 |  1 a230th.s    115 | Code        | 11 |         |    3 | 00/8045 : 20 47 F8    |             jsr       {$f847}        ; calc base address of line in gbasl/gbasl+1
+  116 |  1 a230th.s    116 | Empty       | 11 |         |    0 | 00/8048               |                                      
+  117 |  1 a230th.s    117 | Code        | 11 |         |    2 | 00/8048 : A5 26       |             lda       {$26}          ; add base address of offsreen storage
+  118 |  1 a230th.s    118 | Code        | 11 |         |    1 | 00/804A : 18          |             clc                      
+  119 |  1 a230th.s    119 | Code        | 11 |         |    2 | 00/804B : 69 00       |             adc       #<{$2000}      
+  120 |  1 a230th.s    120 | Code        | 11 |         |    2 | 00/804D : 85 26       |             sta       {$26}          ; store result in gbasl/gbasl+1
+  121 |  1 a230th.s    121 | Code        | 11 |         |    2 | 00/804F : A5 27       |             lda       {$26}+1        
+  122 |  1 a230th.s    122 | Code        | 11 |         |    2 | 00/8051 : 69 20       |             adc       #>{$2000}      
+  123 |  1 a230th.s    123 | Code        | 11 |         |    2 | 00/8053 : 85 27       |             sta       {$26}+1        
+  124 |  1 a230th.s    124 | Empty       | 11 |         |    0 | 00/8055               |                                      
+  125 |  1 a230th.s    125 | Code        | 11 |         |    2 | 00/8055 : A5 26       |             lda       {$26}          ; add number of byte already written
+  126 |  1 a230th.s    126 | Code        | 11 |         |    1 | 00/8057 : 18          |             clc                      
+  127 |  1 a230th.s    127 | Code        | 11 |         |    3 | 00/8058 : 6D 9D 81    |             adc       linelength     ;
+  128 |  1 a230th.s    128 | Code        | 11 |         |    2 | 00/805B : 85 26       |             sta       {$26}          ; store result in gbasl/gbasl+1
+  129 |  1 a230th.s    129 | Code        | 11 |         |    2 | 00/805D : A5 27       |             lda       {$26}+1        
+  130 |  1 a230th.s    130 | Code        | 11 |         |    2 | 00/805F : 69 00       |             adc       #$00           
+  131 |  1 a230th.s    131 | Code        | 11 |         |    2 | 00/8061 : 85 27       |             sta       {$26}+1        
+  132 |  1 a230th.s    132 | Empty       | 11 |         |    0 | 00/8063               |                                      
+  133 |  1 a230th.s    133 | Code        | 11 |         |    1 | 00/8063 : 68          |             pla                      ; restore length
+  134 |  1 a230th.s    134 | Code        | 11 |         |    1 | 00/8064 : A8          |             tay                      ; y = length (number of identical pixels)
+  135 |  1 a230th.s    135 | Code        | 11 |         |    1 | 00/8065 : 88          |             dey                      ; adjut length (ex : length of 1 ==> offset = 0)
+  136 |  1 a230th.s    136 | Empty       | 11 |         |    0 | 00/8066               |                                      
+  137 |  1 a230th.s    137 | Code        | 11 |         |    1 | 00/8066 : 18          |             clc                      
+  138 |  1 a230th.s    138 | Code        | 11 |         |    3 | 00/8067 : 6D 9D 81    |             adc       linelength     ; update number of pixel on this line
+  139 |  1 a230th.s    139 | Code        | 11 |         |    3 | 00/806A : 8D 9D 81    |             sta       linelength     ; and save it
+  140 |  1 a230th.s    140 | Empty       | 11 |         |    0 | 00/806D               |                                      
+  141 |  1 a230th.s    141 | Empty       | 11 |         |    0 | 00/806D               |                                      
+  142 |  1 a230th.s    142 | Code        | 11 |         |    2 | 00/806D : C9 28       |             cmp       #40            ; end of line ?
+  143 |  1 a230th.s    143 | Code        | 11 |         |    2 | 00/806F : D0 08       |             bne       suite          ; no
+  144 |  1 a230th.s    144 | Code        | 11 |         |    3 | 00/8071 : EE 9C 81    |             inc       line           ; yes : adjust line and linelength variables
+  145 |  1 a230th.s    145 | Code        | 11 |         |    2 | 00/8074 : A9 00       |             lda       #$00           
+  146 |  1 a230th.s    146 | Code        | 11 |         |    3 | 00/8076 : 8D 9D 81    |             sta       linelength     
+  147 |  1 a230th.s    147 | Empty       | 11 |         |    0 | 00/8079               | suite                                
+  148 |  1 a230th.s    148 | Code        | 11 |         |    1 | 00/8079 : 68          |             pla                      ; restore pixel value
+  149 |  1 a230th.s    149 | Empty       | 11 |         |    0 | 00/807A               | loopoff                              
+  150 |  1 a230th.s    150 | Code        | 11 |         |    2 | 00/807A : 91 26       |             sta       ({$26}),y      ; poke pixel in offsreen
+  151 |  1 a230th.s    151 | Code        | 11 |         |    1 | 00/807C : 88          |             dey                      
+  152 |  1 a230th.s    152 | Code        | 11 |         |    2 | 00/807D : 10 FB       |             bpl       loopoff        ; loop
+  153 |  1 a230th.s    153 | Code        | 11 |         |    2 | 00/807F : E6 06       |             inc       {$06}          ; process the next run of characters
+  154 |  1 a230th.s    154 | Code        | 11 |         |    2 | 00/8081 : D0 A9       |             bne       decode         
+  155 |  1 a230th.s    155 | Code        | 11 |         |    2 | 00/8083 : E6 07       |             inc       {$06}+1        
+  156 |  1 a230th.s    156 | Code        | 11 |         |    2 | 00/8085 : D0 A5       |             bne       decode         
+  157 |  1 a230th.s    157 | Empty       | 11 |         |    0 | 00/8087               |                                      
+  158 |  1 a230th.s    158 | Empty       | 11 |         |    0 | 00/8087               | anim                                 
+  159 |  1 a230th.s    159 | Comment     | 11 |         |    0 | 00/8087               | ; compare offsreen and text screen
+  160 |  1 a230th.s    160 | Comment     | 11 |         |    0 | 00/8087               | ; while each byte not equal, inc text screen byte
+  161 |  1 a230th.s    161 | Comment     | 11 |         |    0 | 00/8087               | ; in chars table, and update flag
+  162 |  1 a230th.s    162 | Comment     | 11 |         |    0 | 00/8087               | ; repeat full loop until no inc (flag = 0)
+  163 |  1 a230th.s    163 | Empty       | 11 |         |    0 | 00/8087               |                                      
+  164 |  1 a230th.s    164 | Code        | 11 |         |    2 | 00/8087 : A9 00       |             lda       #$00           
+  165 |  1 a230th.s    165 | Code        | 11 |         |    3 | 00/8089 : 8D 9C 81    |             sta       line           ; line #
+  166 |  1 a230th.s    166 | Code        | 11 |         |    1 | 00/808C : A8          |             tay                      ; horizontal position
+  167 |  1 a230th.s    167 | Code        | 11 |         |    3 | 00/808D : 8D 9E 81    |             sta       permut         ; boolean flag
+  168 |  1 a230th.s    168 | Empty       | 11 |         |    0 | 00/8090               |                                      
+  169 |  1 a230th.s    169 | Empty       | 11 |         |    0 | 00/8090               | outerloop                            
+  170 |  1 a230th.s    170 | Code        | 11 |         |    3 | 00/8090 : AD 9C 81    |             lda       line           ; outer loop
+  171 |  1 a230th.s    171 | Code        | 11 |         |    3 | 00/8093 : 20 47 F8    |             jsr       {$f847}        ; get line base address
+  172 |  1 a230th.s    172 | Code        | 11 |         |    2 | 00/8096 : A9 00       |             lda       #<{$2000}      ; calc base address in offscreen
+  173 |  1 a230th.s    173 | Code        | 11 |         |    1 | 00/8098 : 18          |             clc                      ; line base address + offscreen base storage address
+  174 |  1 a230th.s    174 | Code        | 11 |         |    2 | 00/8099 : 65 26       |             adc       {$26}          
+  175 |  1 a230th.s    175 | Code        | 11 |         |    2 | 00/809B : 85 06       |             sta       {$06}          ; ==> in ptr
+  176 |  1 a230th.s    176 | Code        | 11 |         |    2 | 00/809D : A9 20       |             lda       #>{$2000}      
+  177 |  1 a230th.s    177 | Code        | 11 |         |    2 | 00/809F : 65 27       |             adc       {$26}+1        
+  178 |  1 a230th.s    178 | Code        | 11 |         |    2 | 00/80A1 : 85 07       |             sta       {$06}+1        
+  179 |  1 a230th.s    179 | Empty       | 11 |         |    0 | 00/80A3               |                                      
+  180 |  1 a230th.s    180 | Empty       | 11 |         |    0 | 00/80A3               | loopcmp                              
+  181 |  1 a230th.s    181 | Code        | 11 |         |    2 | 00/80A3 : B1 26       |             lda       ({$26}),y      ; get byte in text page
+  182 |  1 a230th.s    182 | Code        | 11 |         |    2 | 00/80A5 : D1 06       |             cmp       ({$06}),y      ; compare with byte in offsreen
+  183 |  1 a230th.s    183 | Code        | 11 |         |    2 | 00/80A7 : F0 20       |             beq       noinc          ; if equal : next byte
+  184 |  1 a230th.s    184 | Comment     | 11 |         |    0 | 00/80A9               |   ; get next char in lookup table
+  185 |  1 a230th.s    185 | Code        | 11 |         |    1 | 00/80A9 : AA          |             tax                      ; move byte to x
+  186 |  1 a230th.s    186 | Code        | 11 |         |    3 | 00/80AA : BD D7 83    |             lda       lookup,x       ; get index in lookup table
+  187 |  1 a230th.s    187 | Code        | 11 |         |    1 | 00/80AD : 1A          |             inc                      ; next index
+  188 |  1 a230th.s    188 | Code        | 11 |         |    1 | 00/80AE : AA          |             tax                      ; index in x
+  189 |  1 a230th.s    189 | Code        | 11 |         |    3 | 00/80AF : BD A3 81    |             lda       chars,x        ; get char in chars table
+  190 |  1 a230th.s    190 | Code        | 11 |         |    2 | 00/80B2 : 91 26       |             sta       ({$26}),y      ; poke vale in text page
+  191 |  1 a230th.s    191 | Empty       | 11 |         |    0 | 00/80B4               |                                      
+  192 |  1 a230th.s    192 | Code        | 11 |         |    1 | 00/80B4 : 98          |             tya                      ; changes on every loop (h position)
+  193 |  1 a230th.s    193 | Code        | 11 |         |    2 | 00/80B5 : 29 07       |             and       #%00000111     ; One on 8
+  194 |  1 a230th.s    194 | Code        | 11 |         |    2 | 00/80B7 : D0 06       |             bne       noclic         ; jmmp over clic
+  195 |  1 a230th.s    195 | Code        | 11 |         |    3 | 00/80B9 : 20 7E 81    |             jsr       clic           ; make some noise
+  196 |  1 a230th.s    196 | Code        | 11 |         |    3 | 00/80BC : 4C C4 80    |             jmp       nowait         ;
+  197 |  1 a230th.s    197 | Empty       | 11 |         |    0 | 00/80BF               | noclic                               
+  198 |  1 a230th.s    198 | Code        | 11 |         |    2 | 00/80BF : A9 08       |             lda       #$08           ; no sound but delay
+  199 |  1 a230th.s    199 | Code        | 11 |         |    3 | 00/80C1 : 20 A8 FC    |             jsr       {$fca8}        
+  200 |  1 a230th.s    200 | Empty       | 11 |         |    0 | 00/80C4               | nowait                               
+  201 |  1 a230th.s    201 | Code        | 11 |         |    2 | 00/80C4 : A9 01       |             lda       #$01           ; update flag "an update occured"
+  202 |  1 a230th.s    202 | Code        | 11 |         |    3 | 00/80C6 : 8D 9E 81    |             sta       permut         
+  203 |  1 a230th.s    203 | Empty       | 11 |         |    0 | 00/80C9               |                                      
+  204 |  1 a230th.s    204 | Empty       | 11 |         |    0 | 00/80C9               | noinc                                
+  205 |  1 a230th.s    205 | Code        | 11 |         |    1 | 00/80C9 : C8          |             iny                      ; next byte on the line
+  206 |  1 a230th.s    206 | Code        | 11 |         |    2 | 00/80CA : C0 28       |             cpy       #40            ; end of line ?
+  207 |  1 a230th.s    207 | Code        | 11 |         |    2 | 00/80CC : D0 D5       |             bne       loopcmp        ; no : loop
+  208 |  1 a230th.s    208 | Code        | 11 |         |    2 | 00/80CE : A0 00       |             ldy       #$00           ; reset beginning of line
+  209 |  1 a230th.s    209 | Code        | 11 |         |    3 | 00/80D0 : EE 9C 81    |             inc       line           ; next line
+  210 |  1 a230th.s    210 | Code        | 11 |         |    3 | 00/80D3 : AD 9C 81    |             lda       line           ; last line ?
+  211 |  1 a230th.s    211 | Code        | 11 |         |    2 | 00/80D6 : C9 17       |             cmp       #23            
+  212 |  1 a230th.s    212 | Code        | 11 |         |    2 | 00/80D8 : D0 B6       |             bne       outerloop      ; no : loop
+  213 |  1 a230th.s    213 | Code        | 11 |         |    3 | 00/80DA : AD 9E 81    |             lda       permut         ; did an update occured ?
+  214 |  1 a230th.s    214 | Code        | 11 |         |    2 | 00/80DD : D0 A8       |             bne       anim           ; yes : loop from the beginning
+  215 |  1 a230th.s    215 | Empty       | 11 |         |    0 | 00/80DF               |                                      
+  216 |  1 a230th.s    216 | Code        | 11 |         |    2 | 00/80DF : A2 28       |             ldx       #40            
+  217 |  1 a230th.s    217 | Empty       | 11 |         |    0 | 00/80E1               | bigwait                              
+  218 |  1 a230th.s    218 | Code        | 11 |         |    2 | 00/80E1 : A9 81       |             lda       #$81           
+  219 |  1 a230th.s    219 | Code        | 11 |         |    3 | 00/80E3 : 20 A8 FC    |             jsr       {$fca8}        
+  220 |  1 a230th.s    220 | Code        | 11 |         |    1 | 00/80E6 : CA          |             dex                      
+  221 |  1 a230th.s    221 | Code        | 11 |         |    2 | 00/80E7 : D0 F8       |             bne       bigwait        
+  222 |  1 a230th.s    222 | Macro       | 11 |         |    0 | 00/80E9               |             playnote  $88;$10;$20;bip!
+  223 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/80E9 : 48          |             pha                      ; save A
+  224 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/80EA : 8A          |             txa                      
+  225 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/80EB : 48          |             pha                      ; save X
+  226 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/80EC : 98          |             tya                      
+  227 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/80ED : 48          |             pha                      ; save Y
+  228 |  1 a230th.s    222 | Code        | 11 |         |    2 | 00/80EE : A9 88       |             lda       #$88           
+  229 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/80F0 : 8D 9F 81    |             sta       pitch          
+  230 |  1 a230th.s    222 | Code        | 11 |         |    2 | 00/80F3 : A9 10       |             lda       #$10           
+  231 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/80F5 : 8D A1 81    |             sta       lengthhi       
+  232 |  1 a230th.s    222 | Code        | 11 |         |    2 | 00/80F8 : A9 20       |             lda       #$20           
+  233 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/80FA : 8D A0 81    |             sta       lengthlo       
+  234 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/80FD : AC A0 81    | ozunid_1    ldy       lengthlo       
+  235 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/8100 : AD 30 C0    | ozunid_2    lda       $c030          ;4 cycles
+  236 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/8103 : AE 9F 81    |             ldx       pitch          ;3 cycles
+  237 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8106 : EA          | ozunid_3    nop                      ;2 cycles
+  238 |  1 a230th.s    222 | Empty       | 11 |         |    0 | 00/8107               |                                      
+  239 |  1 a230th.s    222 | Empty       | 11 |         |    0 | 00/8107               |                                      
+  240 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8107 : EA          |             nop                      ;2 cycles
+  241 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8108 : CA          |             dex                      ;2 cycles
+  242 |  1 a230th.s    222 | Code        | 11 |         |    2 | 00/8109 : D0 FB       |             bne       ozunid_3       ;3 cycles
+  243 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/810B : 88          |             dey                      ;2 cycles
+  244 |  1 a230th.s    222 | Code        | 11 |         |    2 | 00/810C : D0 F2       |             bne       ozunid_2       ;3 cycles
+  245 |  1 a230th.s    222 | Code        | 11 |         |    3 | 00/810E : CE A1 81    |             dec       lengthhi       ;5 cycles
+  246 |  1 a230th.s    222 | Code        | 11 |         |    2 | 00/8111 : D0 EA       |             bne       ozunid_1       ;3 cycles
+  247 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8113 : 68          |             pla                      
+  248 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8114 : A8          |             tay                      ; restore Y
+  249 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8115 : 68          |             pla                      
+  250 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8116 : AA          |             tax                      ; restore X
+  251 |  1 a230th.s    222 | Code        | 11 |         |    1 | 00/8117 : 68          |             pla                      ; restore A
+  252 |  1 a230th.s    223 | Empty       | 11 |         |    0 | 00/8118               |                                      
+  253 |  1 a230th.s    224 | Comment     | 11 |         |    0 | 00/8118               |   ; print spaces before text
+  254 |  1 a230th.s    225 | Code        | 11 |         |    2 | 00/8118 : A9 17       |             lda       #23            ; vtab on last line
+  255 |  1 a230th.s    226 | Code        | 11 |         |    2 | 00/811A : 85 25       |             sta       {$25}          
+  256 |  1 a230th.s    227 | Code        | 11 |         |    3 | 00/811C : 20 22 FC    |             jsr       {$fc22}        
+  257 |  1 a230th.s    228 | Code        | 11 |         |    2 | 00/811F : A9 28       |             lda       #$28           ; screen width (40 decimal)
+  258 |  1 a230th.s    229 | Code        | 11 |         |    1 | 00/8121 : 38          |             sec                      
+  259 |  1 a230th.s    230 | Code        | 11 |         |    3 | 00/8122 : ED B3 81    |             sbc       mytext         ; substract text length
+  260 |  1 a230th.s    231 | Code        | 11 |         |    1 | 00/8125 : 4A          |             lsr                      ; div by 2
+  261 |  1 a230th.s    232 | Code        | 11 |         |    1 | 00/8126 : AA          |             tax                      ; save in X
+  262 |  1 a230th.s    233 | Empty       | 11 |         |    0 | 00/8127               | spaceloop                            
+  263 |  1 a230th.s    234 | Code        | 11 |         |    2 | 00/8127 : A9 A0       |             lda       #$A0           ; space char in A
+  264 |  1 a230th.s    235 | Code        | 11 |         |    3 | 00/8129 : 20 ED FD    |             jsr       {$fded}        ; print it
+  265 |  1 a230th.s    236 | Code        | 11 |         |    1 | 00/812C : CA          |             dex                      ; next
+  266 |  1 a230th.s    237 | Code        | 11 |         |    2 | 00/812D : D0 F8       |             bne       spaceloop      
+  267 |  1 a230th.s    238 | Code        | 11 |         |    2 | 00/812F : A2 00       |             ldx       #$00           
+  268 |  1 a230th.s    239 | Empty       | 11 |         |    0 | 00/8131               | print                                ; now print text
+  269 |  1 a230th.s    240 | Code        | 11 |         |    3 | 00/8131 : BD B4 81    |             lda       mytext+1,x     
+  270 |  1 a230th.s    241 | Code        | 11 |         |    2 | 00/8134 : F0 3B       |             beq       endprint       
+  271 |  1 a230th.s    242 | Code        | 11 |         |    3 | 00/8136 : 20 ED FD    |             jsr       {$fded}        
+  272 |  1 a230th.s    243 | Code        | 11 |         |    1 | 00/8139 : E8          |             inx                      
+  273 |  1 a230th.s    244 | Code        | 11 |         |    3 | 00/813A : 4C 31 81    |             jmp       print          
+  274 |  1 a230th.s    245 | Empty       | 11 |         |    0 | 00/813D               |                                      
+  275 |  1 a230th.s    246 | Code        | 11 |         |    2 | 00/813D : A9 FE       |             lda       #$fe           ; wait
+  276 |  1 a230th.s    247 | Code        | 11 |         |    3 | 00/813F : 20 A8 FC    |             jsr       {$fca8}        
+  277 |  1 a230th.s    248 | Macro       | 11 |         |    0 | 00/8142               |             playnote  $80;$10;$20;bip!
+  278 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8142 : 48          |             pha                      ; save A
+  279 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8143 : 8A          |             txa                      
+  280 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8144 : 48          |             pha                      ; save X
+  281 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8145 : 98          |             tya                      
+  282 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8146 : 48          |             pha                      ; save Y
+  283 |  1 a230th.s    248 | Code        | 11 |         |    2 | 00/8147 : A9 80       |             lda       #$80           
+  284 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/8149 : 8D 9F 81    |             sta       pitch          
+  285 |  1 a230th.s    248 | Code        | 11 |         |    2 | 00/814C : A9 10       |             lda       #$10           
+  286 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/814E : 8D A1 81    |             sta       lengthhi       
+  287 |  1 a230th.s    248 | Code        | 11 |         |    2 | 00/8151 : A9 20       |             lda       #$20           
+  288 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/8153 : 8D A0 81    |             sta       lengthlo       
+  289 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/8156 : AC A0 81    | ozunid_4    ldy       lengthlo       
+  290 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/8159 : AD 30 C0    | ozunid_5    lda       $c030          ;4 cycles
+  291 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/815C : AE 9F 81    |             ldx       pitch          ;3 cycles
+  292 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/815F : EA          | ozunid_6    nop                      ;2 cycles
+  293 |  1 a230th.s    248 | Empty       | 11 |         |    0 | 00/8160               |                                      
+  294 |  1 a230th.s    248 | Empty       | 11 |         |    0 | 00/8160               |                                      
+  295 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8160 : EA          |             nop                      ;2 cycles
+  296 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8161 : CA          |             dex                      ;2 cycles
+  297 |  1 a230th.s    248 | Code        | 11 |         |    2 | 00/8162 : D0 FB       |             bne       ozunid_6       ;3 cycles
+  298 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8164 : 88          |             dey                      ;2 cycles
+  299 |  1 a230th.s    248 | Code        | 11 |         |    2 | 00/8165 : D0 F2       |             bne       ozunid_5       ;3 cycles
+  300 |  1 a230th.s    248 | Code        | 11 |         |    3 | 00/8167 : CE A1 81    |             dec       lengthhi       ;5 cycles
+  301 |  1 a230th.s    248 | Code        | 11 |         |    2 | 00/816A : D0 EA       |             bne       ozunid_4       ;3 cycles
+  302 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/816C : 68          |             pla                      
+  303 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/816D : A8          |             tay                      ; restore Y
+  304 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/816E : 68          |             pla                      
+  305 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/816F : AA          |             tax                      ; restore X
+  306 |  1 a230th.s    248 | Code        | 11 |         |    1 | 00/8170 : 68          |             pla                      ; restore A
+  307 |  1 a230th.s    249 | Empty       | 11 |         |    0 | 00/8171               |                                      
+  308 |  1 a230th.s    250 | Empty       | 11 |         |    0 | 00/8171               | endprint                             
+  309 |  1 a230th.s    251 | Code        | 11 |         |    3 | 00/8171 : 20 75 81    |             jsr       waitkey        
+  310 |  1 a230th.s    252 | Code        | 11 |         |    1 | 00/8174 : 60          |             rts                      ; end of program
+  311 |  1 a230th.s    253 | Empty       | 11 |         |    0 | 00/8175               |                                      
+  312 |  1 a230th.s    254 | Empty       | 11 |         |    0 | 00/8175               |                                      
+  313 |  1 a230th.s    255 | Comment     | 11 |         |    0 | 00/8175               | *************** ROUTINES ***************
+  314 |  1 a230th.s    256 | Empty       | 11 |         |    0 | 00/8175               | waitkey                              
+  315 |  1 a230th.s    257 | Code        | 11 |         |    3 | 00/8175 : AD 00 C0    |             lda       {$c000}        
+  316 |  1 a230th.s    258 | Code        | 11 |         |    2 | 00/8178 : 10 FB       |             bpl       waitkey        
+  317 |  1 a230th.s    259 | Code        | 11 |         |    3 | 00/817A : 2C 10 C0    |             bit       {$c010}        
+  318 |  1 a230th.s    260 | Code        | 11 |         |    1 | 00/817D : 60          |             rts                      
+  319 |  1 a230th.s    261 | Empty       | 11 |         |    0 | 00/817E               |                                      
+  320 |  1 a230th.s    262 | Empty       | 11 |         |    0 | 00/817E               | clic                                 
+  321 |  1 a230th.s    263 | Code        | 11 |         |    1 | 00/817E : 48          |             pha                      ; save registers
+  322 |  1 a230th.s    264 | Code        | 11 |         |    1 | 00/817F : 8A          |             txa                      
+  323 |  1 a230th.s    265 | Code        | 11 |         |    1 | 00/8180 : 48          |             pha                      
+  324 |  1 a230th.s    266 | Code        | 11 |         |    1 | 00/8181 : 98          |             tya                      
+  325 |  1 a230th.s    267 | Code        | 11 |         |    1 | 00/8182 : 48          |             pha                      
+  326 |  1 a230th.s    268 | Code        | 11 |         |    2 | 00/8183 : A0 03       |             ldy       #$03           ; duration
+  327 |  1 a230th.s    269 | Empty       | 11 |         |    0 | 00/8185               | doclic                               
+  328 |  1 a230th.s    270 | Code        | 11 |         |    2 | 00/8185 : A2 10       |             ldx       #$10           ; pitch
+  329 |  1 a230th.s    271 | Code        | 11 |         |    3 | 00/8187 : AD 30 C0    |             lda       {$c030}        ; sound
+  330 |  1 a230th.s    272 | Empty       | 11 |         |    0 | 00/818A               | wait1                                
+  331 |  1 a230th.s    273 | Code        | 11 |         |    1 | 00/818A : CA          |             dex                      
+  332 |  1 a230th.s    274 | Code        | 11 |         |    1 | 00/818B : EA          |             nop                      
+  333 |  1 a230th.s    275 | Code        | 11 |         |    1 | 00/818C : EA          |             nop                      
+  334 |  1 a230th.s    276 | Code        | 11 |         |    1 | 00/818D : EA          |             nop                      
+  335 |  1 a230th.s    277 | Code        | 11 |         |    1 | 00/818E : EA          |             nop                      
+  336 |  1 a230th.s    278 | Code        | 11 |         |    1 | 00/818F : EA          |             nop                      
+  337 |  1 a230th.s    279 | Code        | 11 |         |    1 | 00/8190 : EA          |             nop                      
+  338 |  1 a230th.s    280 | Code        | 11 |         |    2 | 00/8191 : D0 F7       |             bne       wait1          
+  339 |  1 a230th.s    281 | Code        | 11 |         |    1 | 00/8193 : 88          |             dey                      
+  340 |  1 a230th.s    282 | Code        | 11 |         |    2 | 00/8194 : D0 EF       |             bne       doclic         
+  341 |  1 a230th.s    283 | Code        | 11 |         |    1 | 00/8196 : 68          |             pla                      
+  342 |  1 a230th.s    284 | Code        | 11 |         |    1 | 00/8197 : A8          |             tay                      
+  343 |  1 a230th.s    285 | Code        | 11 |         |    1 | 00/8198 : 68          |             pla                      
+  344 |  1 a230th.s    286 | Code        | 11 |         |    1 | 00/8199 : AA          |             tax                      
+  345 |  1 a230th.s    287 | Code        | 11 |         |    1 | 00/819A : 68          |             pla                      
+  346 |  1 a230th.s    288 | Code        | 11 |         |    1 | 00/819B : 60          |             rts                      
+  347 |  1 a230th.s    289 | Empty       | 11 |         |    0 | 00/819C               |                                      
+  348 |  1 a230th.s    290 | Empty       | 11 |         |    0 | 00/819C               |                                      
+  349 |  1 a230th.s    291 | Empty       | 11 |         |    0 | 00/819C               |                                      
+  350 |  1 a230th.s    292 | Data        | 11 |         |    1 | 00/819C : 00          | line        db        $00            
+  351 |  1 a230th.s    293 | Data        | 11 |         |    1 | 00/819D : 00          | linelength  db        $00            
+  352 |  1 a230th.s    294 | Data        | 11 |         |    1 | 00/819E : 00          | permut      db        $00            
+  353 |  1 a230th.s    295 | Empty       | 11 |         |    0 | 00/819F               |                                      
+  354 |  1 a230th.s    296 | Data        | 11 |         |    1 | 00/819F : 00          | pitch       hex       00             
+  355 |  1 a230th.s    297 | Data        | 11 |         |    1 | 00/81A0 : 00          | lengthlo    hex       00             
+  356 |  1 a230th.s    298 | Data        | 11 |         |    1 | 00/81A1 : 00          | lengthhi    hex       00             
+  357 |  1 a230th.s    299 | Data        | 11 |         |    1 | 00/81A2 : 00          | tempo       hex       00             
+  358 |  1 a230th.s    300 | Empty       | 11 |         |    0 | 00/81A3               |                                      
+  359 |  1 a230th.s    301 | Empty       | 11 |         |    0 | 00/81A3               |                                      
+  360 |  1 a230th.s    302 | Empty       | 11 |         |    0 | 00/81A3               | chars                                
+  361 |  1 a230th.s    303 | Data        | 11 |         |    4 | 00/81A3 : A0 AE BA AC |             db        $A0,$AE,$BA,$AC;  .:,
+  362 |  1 a230th.s    304 | Data        | 11 |         |    4 | 00/81A7 : BB A1 AD DE |             db        $BB,$A1,$AD,$DE; ;!-^
+  363 |  1 a230th.s    305 | Data        | 11 |         |    4 | 00/81AB : AB BD BF A6 |             db        $AB,$BD,$BF,$A6; +=/&
+  364 |  1 a230th.s    306 | Data        | 11 |         |    4 | 00/81AF : AA A5 A3 C0 |             db        $AA,$A5,$A3,$C0; *%#@
+  365 |  1 a230th.s    307 | Empty       | 11 |         |    0 | 00/81B3               |                                      
+  366 |  1 a230th.s    308 | Comment     | 11 |         |    0 | 00/81B3               | ;; Images are run-length encoded with one run per byte
+  367 |  1 a230th.s    309 | Comment     | 11 |         |    0 | 00/81B3               | ;; Run ength in the upper nybble
+  368 |  1 a230th.s    310 | Comment     | 11 |         |    0 | 00/81B3               | ;; Offset into the character table above in the lower nybble
+  369 |  1 a230th.s    311 | Comment     | 11 |         |    0 | 00/81B3               | ;; End of image data is indicated by a $00 byte
+  370 |  1 a230th.s    312 | Comment     | 11 |         |    0 | 00/81B3               | ;; Next byte contains length of caption
+  371 |  1 a230th.s    313 | Comment     | 11 |         |    0 | 00/81B3               | ;; Remaining bytes contain caption text
+  372 |  1 a230th.s    314 | Comment     | 11 |         |    0 | 00/81B3               | ;; Last image is indicated by $00 byte after caption
+  373 |  1 a230th.s    315 | Empty       | 11 |         |    0 | 00/81B3               |                                      
+  374 |  1 a230th.s    316 | Empty       | 11 |         |    0 | 00/81B3               | mytext                               
+  375 |  1 a230th.s    317 | Data        | 11 |         |   18 | 00/81B3 : 11 C4 E9 E7 |             str       "Digital democraty"
+      |                    |             |    |         |      |           E9 F4 E1 EC |
+      |                    |             |    |         |      |           A0 E4 E5 ED |
+      |                    |             |    |         |      |           EF E3 F2 E1 |
+      |                    |             |    |         |      |           F4 F9       |
+  376 |  1 a230th.s    318 | Data        | 11 |         |    1 | 00/81C5 : 00          |             db        00             
+  377 |  1 a230th.s    319 | Empty       | 11 |         |    0 | 00/81C6               |                                      
+  378 |  1 a230th.s    320 | Empty       | 11 |         |    0 | 00/81C6               | image                                
+  379 |  1 a230th.s    321 | Data        | 11 |         |    4 | 00/81C6 : 16 5F 19 17 |             db        $16,$5F,$19,$17
+  380 |  1 a230th.s    322 | Data        | 11 |         |    4 | 00/81CA : 9F 15 19 7F |             db        $9F,$15,$19,$7F
+  381 |  1 a230th.s    323 | Data        | 11 |         |    4 | 00/81CE : 16 19 CF 13 |             db        $16,$19,$CF,$13
+  382 |  1 a230th.s    324 | Data        | 11 |         |    4 | 00/81D2 : 6F 17 15 8F |             db        $6F,$17,$15,$8F
+  383 |  1 a230th.s    325 | Data        | 11 |         |    4 | 00/81D6 : 15 17 6F 17 |             db        $15,$17,$6F,$17
+  384 |  1 a230th.s    326 | Data        | 11 |         |    4 | 00/81DA : 15 DF 11 1C |             db        $15,$DF,$11,$1C
+  385 |  1 a230th.s    327 | Data        | 11 |         |    4 | 00/81DE : 6F 15 13 1E |             db        $6F,$15,$13,$1E
+  386 |  1 a230th.s    328 | Data        | 11 |         |    4 | 00/81E2 : 6F 16 15 5F |             db        $6F,$16,$15,$5F
+  387 |  1 a230th.s    329 | Data        | 11 |         |    4 | 00/81E6 : 19 12 1B DF |             db        $19,$12,$1B,$DF
+  388 |  1 a230th.s    330 | Data        | 11 |         |    4 | 00/81EA : 10 19 7F 15 |             db        $10,$19,$7F,$15
+  389 |  1 a230th.s    331 | Data        | 11 |         |    4 | 00/81EE : 13 1C 5F 19 |             db        $13,$1C,$5F,$19
+  390 |  1 a230th.s    332 | Data        | 11 |         |    4 | 00/81F2 : 16 1C 3F 1B |             db        $16,$1C,$3F,$1B
+  391 |  1 a230th.s    333 | Data        | 11 |         |    4 | 00/81F6 : 12 17 EF 10 |             db        $12,$17,$EF,$10
+  392 |  1 a230th.s    334 | Data        | 11 |         |    4 | 00/81FA : 17 8F 15 13 |             db        $17,$8F,$15,$13
+  393 |  1 a230th.s    335 | Data        | 11 |         |    4 | 00/81FE : 1B 1F 1E 19 |             db        $1B,$1F,$1E,$19
+  394 |  1 a230th.s    336 | Data        | 11 |         |    4 | 00/8202 : 17 25 13 14 |             db        $17,$25,$13,$14
+  395 |  1 a230th.s    337 | Data        | 11 |         |    4 | 00/8206 : 19 1A 26 1D |             db        $19,$1A,$26,$1D
+  396 |  1 a230th.s    338 | Data        | 11 |         |    4 | 00/820A : 9F 1C 1B 3F |             db        $9F,$1C,$1B,$3F
+  397 |  1 a230th.s    339 | Data        | 11 |         |    4 | 00/820E : 11 15 8F 1D |             db        $11,$15,$8F,$1D
+  398 |  1 a230th.s    340 | Data        | 11 |         |    4 | 00/8212 : 16 18 17 15 |             db        $16,$18,$17,$15
+  399 |  1 a230th.s    341 | Data        | 11 |         |    4 | 00/8216 : 14 15 23 22 |             db        $14,$15,$23,$22
+  400 |  1 a230th.s    342 | Data        | 11 |         |    4 | 00/821A : 21 15 18 7F |             db        $21,$15,$18,$7F
+  401 |  1 a230th.s    343 | Data        | 11 |         |    4 | 00/821E : 1E 19 17 1A |             db        $1E,$19,$17,$1A
+  402 |  1 a230th.s    344 | Data        | 11 |         |    4 | 00/8222 : 1E 3F 11 14 |             db        $1E,$3F,$11,$14
+  403 |  1 a230th.s    345 | Data        | 11 |         |    4 | 00/8226 : 9F 1D 24 13 |             db        $9F,$1D,$24,$13
+  404 |  1 a230th.s    346 | Data        | 11 |         |    4 | 00/822A : 45 24 12 13 |             db        $45,$24,$12,$13
+  405 |  1 a230th.s    347 | Data        | 11 |         |    4 | 00/822E : 11 14 1B 4F |             db        $11,$14,$1B,$4F
+  406 |  1 a230th.s    348 | Data        | 11 |         |    4 | 00/8232 : 1C 17 13 17 |             db        $1C,$17,$13,$17
+  407 |  1 a230th.s    349 | Data        | 11 |         |    4 | 00/8236 : 1D 5F 12 15 |             db        $1D,$5F,$12,$15
+  408 |  1 a230th.s    350 | Data        | 11 |         |    4 | 00/823A : 9F 19 10 12 |             db        $9F,$19,$10,$12
+  409 |  1 a230th.s    351 | Data        | 11 |         |    4 | 00/823E : 16 18 29 18 |             db        $16,$18,$29,$18
+  410 |  1 a230th.s    352 | Data        | 11 |         |    4 | 00/8242 : 39 15 13 12 |             db        $39,$15,$13,$12
+  411 |  1 a230th.s    353 | Data        | 11 |         |    4 | 00/8246 : 11 1D 1E 19 |             db        $11,$1D,$1E,$19
+  412 |  1 a230th.s    354 | Data        | 11 |         |    4 | 00/824A : 15 12 16 1D |             db        $15,$12,$16,$1D
+  413 |  1 a230th.s    355 | Data        | 11 |         |    4 | 00/824E : 7F 13 16 8F |             db        $7F,$13,$16,$8F
+  414 |  1 a230th.s    356 | Data        | 11 |         |    4 | 00/8252 : 1B 10 13 18 |             db        $1B,$10,$13,$18
+  415 |  1 a230th.s    357 | Data        | 11 |         |    4 | 00/8256 : 1D 1C 18 15 |             db        $1D,$1C,$18,$15
+  416 |  1 a230th.s    358 | Data        | 11 |         |    4 | 00/825A : 18 17 18 1A |             db        $18,$17,$18,$1A
+  417 |  1 a230th.s    359 | Data        | 11 |         |    4 | 00/825E : 19 17 13 11 |             db        $19,$17,$13,$11
+  418 |  1 a230th.s    360 | Data        | 11 |         |    4 | 00/8262 : 13 15 12 16 |             db        $13,$15,$12,$16
+  419 |  1 a230th.s    361 | Data        | 11 |         |    4 | 00/8266 : 1C 9F 24 19 |             db        $1C,$9F,$24,$19
+  420 |  1 a230th.s    362 | Data        | 11 |         |    4 | 00/826A : 1D 6A 14 11 |             db        $1D,$6A,$14,$11
+  421 |  1 a230th.s    363 | Data        | 11 |         |    4 | 00/826E : 18 1E 1A 15 |             db        $18,$1E,$1A,$15
+  422 |  1 a230th.s    364 | Data        | 11 |         |    4 | 00/8272 : 14 18 1A 19 |             db        $14,$18,$1A,$19
+  423 |  1 a230th.s    365 | Data        | 11 |         |    4 | 00/8276 : 18 26 27 12 |             db        $18,$26,$27,$12
+  424 |  1 a230th.s    366 | Data        | 11 |         |    4 | 00/827A : 11 15 1C BF |             db        $11,$15,$1C,$BF
+  425 |  1 a230th.s    367 | Data        | 11 |         |    4 | 00/827E : 14 15 17 12 |             db        $14,$15,$17,$12
+  426 |  1 a230th.s    368 | Data        | 11 |         |    4 | 00/8282 : 14 16 14 23 |             db        $14,$16,$14,$23
+  427 |  1 a230th.s    369 | Data        | 11 |         |    4 | 00/8286 : 14 13 15 1D |             db        $14,$13,$15,$1D
+  428 |  1 a230th.s    370 | Data        | 11 |         |    4 | 00/828A : 19 13 16 2B |             db        $19,$13,$16,$2B
+  429 |  1 a230th.s    371 | Data        | 11 |         |    4 | 00/828E : 2A 19 18 16 |             db        $2A,$19,$18,$16
+  430 |  1 a230th.s    372 | Data        | 11 |         |    4 | 00/8292 : 14 16 14 10 |             db        $14,$16,$14,$10
+  431 |  1 a230th.s    373 | Data        | 11 |         |    4 | 00/8296 : 16 CF 15 28 |             db        $16,$CF,$15,$28
+  432 |  1 a230th.s    374 | Data        | 11 |         |    4 | 00/829A : 14 1B 2F 2E |             db        $14,$1B,$2F,$2E
+  433 |  1 a230th.s    375 | Data        | 11 |         |    4 | 00/829E : 18 11 19 1A |             db        $18,$11,$19,$1A
+  434 |  1 a230th.s    376 | Data        | 11 |         |    4 | 00/82A2 : 13 17 1C 29 |             db        $13,$17,$1C,$29
+  435 |  1 a230th.s    377 | Data        | 11 |         |    4 | 00/82A6 : 1A 16 12 14 |             db        $1A,$16,$12,$14
+  436 |  1 a230th.s    378 | Data        | 11 |         |    4 | 00/82AA : 17 15 14 13 |             db        $17,$15,$14,$13
+  437 |  1 a230th.s    379 | Data        | 11 |         |    4 | 00/82AE : 10 14 CF 19 |             db        $10,$14,$CF,$19
+  438 |  1 a230th.s    380 | Data        | 11 |         |    4 | 00/82B2 : 28 16 15 4F |             db        $28,$16,$15,$4F
+  439 |  1 a230th.s    381 | Data        | 11 |         |    4 | 00/82B6 : 1A 12 18 14 |             db        $1A,$12,$18,$14
+  440 |  1 a230th.s    382 | Data        | 11 |         |    4 | 00/82BA : 15 1A 15 12 |             db        $15,$1A,$15,$12
+  441 |  1 a230th.s    383 | Data        | 11 |         |    4 | 00/82BE : 18 1B 13 12 |             db        $18,$1B,$13,$12
+  442 |  1 a230th.s    384 | Data        | 11 |         |    4 | 00/82C2 : 26 23 14 10 |             db        $26,$23,$14,$10
+  443 |  1 a230th.s    385 | Data        | 11 |         |    4 | 00/82C6 : 11 18 1B 1A |             db        $11,$18,$1B,$1A
+  444 |  1 a230th.s    386 | Data        | 11 |         |    4 | 00/82CA : 4B 2C 1E 19 |             db        $4B,$2C,$1E,$19
+  445 |  1 a230th.s    387 | Data        | 11 |         |    4 | 00/82CE : 18 1A 18 1A |             db        $18,$1A,$18,$1A
+  446 |  1 a230th.s    388 | Data        | 11 |         |    4 | 00/82D2 : 14 12 1D 3F |             db        $14,$12,$1D,$3F
+  447 |  1 a230th.s    389 | Data        | 11 |         |    4 | 00/82D6 : 18 12 15 12 |             db        $18,$12,$15,$12
+  448 |  1 a230th.s    390 | Data        | 11 |         |    4 | 00/82DA : 16 15 16 18 |             db        $16,$15,$16,$18
+  449 |  1 a230th.s    391 | Data        | 11 |         |    4 | 00/82DE : 2B 14 18 1B |             db        $2B,$14,$18,$1B
+  450 |  1 a230th.s    392 | Data        | 11 |         |    4 | 00/82E2 : 17 22 16 15 |             db        $17,$22,$16,$15
+  451 |  1 a230th.s    393 | Data        | 11 |         |    4 | 00/82E6 : 11 10 12 23 |             db        $11,$10,$12,$23
+  452 |  1 a230th.s    394 | Data        | 11 |         |    4 | 00/82EA : 24 16 17 18 |             db        $24,$16,$17,$18
+  453 |  1 a230th.s    395 | Data        | 11 |         |    4 | 00/82EE : 1B 1C 15 17 |             db        $1B,$1C,$15,$17
+  454 |  1 a230th.s    396 | Data        | 11 |         |    4 | 00/82F2 : 19 1B 15 24 |             db        $19,$1B,$15,$24
+  455 |  1 a230th.s    397 | Data        | 11 |         |    4 | 00/82F6 : 16 14 23 17 |             db        $16,$14,$23,$17
+  456 |  1 a230th.s    398 | Data        | 11 |         |    4 | 00/82FA : 18 14 15 17 |             db        $18,$14,$15,$17
+  457 |  1 a230th.s    399 | Data        | 11 |         |    4 | 00/82FE : 1B 1D 19 23 |             db        $1B,$1D,$19,$23
+  458 |  1 a230th.s    400 | Data        | 11 |         |    4 | 00/8302 : 18 19 18 16 |             db        $18,$19,$18,$16
+  459 |  1 a230th.s    401 | Data        | 11 |         |    4 | 00/8306 : 13 16 18 11 |             db        $13,$16,$18,$11
+  460 |  1 a230th.s    402 | Data        | 11 |         |    4 | 00/830A : 15 2C 1D 1E |             db        $15,$2C,$1D,$1E
+  461 |  1 a230th.s    403 | Data        | 11 |         |    4 | 00/830E : 6F 1E 17 1C |             db        $6F,$1E,$17,$1C
+  462 |  1 a230th.s    404 | Data        | 11 |         |    4 | 00/8312 : 17 12 21 14 |             db        $17,$12,$21,$14
+  463 |  1 a230th.s    405 | Data        | 11 |         |    4 | 00/8316 : 15 27 19 16 |             db        $15,$27,$19,$16
+  464 |  1 a230th.s    406 | Data        | 11 |         |    4 | 00/831A : 15 19 3B 16 |             db        $15,$19,$3B,$16
+  465 |  1 a230th.s    407 | Data        | 11 |         |    4 | 00/831E : 11 12 29 16 |             db        $11,$12,$29,$16
+  466 |  1 a230th.s    408 | Data        | 11 |         |    4 | 00/8322 : 15 12 15 18 |             db        $15,$12,$15,$18
+  467 |  1 a230th.s    409 | Data        | 11 |         |    4 | 00/8326 : 12 1B BF 1C |             db        $12,$1B,$BF,$1C
+  468 |  1 a230th.s    410 | Data        | 11 |         |    4 | 00/832A : 18 11 20 14 |             db        $18,$11,$20,$14
+  469 |  1 a230th.s    411 | Data        | 11 |         |    4 | 00/832E : 3F 1E 18 14 |             db        $3F,$1E,$18,$14
+  470 |  1 a230th.s    412 | Data        | 11 |         |    4 | 00/8332 : 17 39 1A 19 |             db        $17,$39,$1A,$19
+  471 |  1 a230th.s    413 | Data        | 11 |         |    4 | 00/8336 : 17 16 18 19 |             db        $17,$16,$18,$19
+  472 |  1 a230th.s    414 | Data        | 11 |         |    4 | 00/833A : 16 14 11 12 |             db        $16,$14,$11,$12
+  473 |  1 a230th.s    415 | Data        | 11 |         |    4 | 00/833E : 16 14 1A BF |             db        $16,$14,$1A,$BF
+  474 |  1 a230th.s    416 | Data        | 11 |         |    4 | 00/8342 : 18 32 13 12 |             db        $18,$32,$13,$12
+  475 |  1 a230th.s    417 | Data        | 11 |         |    4 | 00/8346 : 1D 2F 1E 15 |             db        $1D,$2F,$1E,$15
+  476 |  1 a230th.s    418 | Data        | 11 |         |    4 | 00/834A : 12 16 28 19 |             db        $12,$16,$28,$19
+  477 |  1 a230th.s    419 | Data        | 11 |         |    4 | 00/834E : 1A 28 27 18 |             db        $1A,$28,$27,$18
+  478 |  1 a230th.s    420 | Data        | 11 |         |    4 | 00/8352 : 15 13 31 12 |             db        $15,$13,$31,$12
+  479 |  1 a230th.s    421 | Data        | 11 |         |    4 | 00/8356 : 1C BF 14 17 |             db        $1C,$BF,$14,$17
+  480 |  1 a230th.s    422 | Data        | 11 |         |    4 | 00/835A : 13 17 14 10 |             db        $13,$17,$14,$10
+  481 |  1 a230th.s    423 | Data        | 11 |         |    4 | 00/835E : 17 3F 14 11 |             db        $17,$3F,$14,$11
+  482 |  1 a230th.s    424 | Data        | 11 |         |    4 | 00/8362 : 15 17 18 19 |             db        $15,$17,$18,$19
+  483 |  1 a230th.s    425 | Data        | 11 |         |    4 | 00/8366 : 2A 19 18 17 |             db        $2A,$19,$18,$17
+  484 |  1 a230th.s    426 | Data        | 11 |         |    4 | 00/836A : 16 14 12 11 |             db        $16,$14,$12,$11
+  485 |  1 a230th.s    427 | Data        | 11 |         |    4 | 00/836E : 22 13 CF 18 |             db        $22,$13,$CF,$18
+  486 |  1 a230th.s    428 | Data        | 11 |         |    4 | 00/8372 : 24 19 11 15 |             db        $24,$19,$11,$15
+  487 |  1 a230th.s    429 | Data        | 11 |         |    4 | 00/8376 : 17 19 1E 1F |             db        $17,$19,$1E,$1F
+  488 |  1 a230th.s    430 | Data        | 11 |         |    4 | 00/837A : 1E 12 16 19 |             db        $1E,$12,$16,$19
+  489 |  1 a230th.s    431 | Data        | 11 |         |    4 | 00/837E : 18 29 17 16 |             db        $18,$29,$17,$16
+  490 |  1 a230th.s    432 | Data        | 11 |         |    4 | 00/8382 : 15 13 12 13 |             db        $15,$13,$12,$13
+  491 |  1 a230th.s    433 | Data        | 11 |         |    4 | 00/8386 : 12 10 14 15 |             db        $12,$10,$14,$15
+  492 |  1 a230th.s    434 | Data        | 11 |         |    4 | 00/838A : 11 1D BF 15 |             db        $11,$1D,$BF,$15
+  493 |  1 a230th.s    435 | Data        | 11 |         |    4 | 00/838E : 10 17 26 1B |             db        $10,$17,$26,$1B
+  494 |  1 a230th.s    436 | Data        | 11 |         |    4 | 00/8392 : 17 16 19 1F |             db        $17,$16,$19,$1F
+  495 |  1 a230th.s    437 | Data        | 11 |         |    4 | 00/8396 : 1A 13 15 17 |             db        $1A,$13,$15,$17
+  496 |  1 a230th.s    438 | Data        | 11 |         |    4 | 00/839A : 19 17 15 34 |             db        $19,$17,$15,$34
+  497 |  1 a230th.s    439 | Data        | 11 |         |    4 | 00/839E : 13 32 11 12 |             db        $13,$32,$11,$12
+  498 |  1 a230th.s    440 | Data        | 11 |         |    4 | 00/83A2 : 11 14 1D BF |             db        $11,$14,$1D,$BF
+  499 |  1 a230th.s    441 | Data        | 11 |         |    4 | 00/83A6 : 11 14 19 15 |             db        $11,$14,$19,$15
+  500 |  1 a230th.s    442 | Data        | 11 |         |    4 | 00/83AA : 17 18 13 18 |             db        $17,$18,$13,$18
+  501 |  1 a230th.s    443 | Data        | 11 |         |    4 | 00/83AE : 19 18 19 18 |             db        $19,$18,$19,$18
+  502 |  1 a230th.s    444 | Data        | 11 |         |    4 | 00/83B2 : 23 16 24 25 |             db        $23,$16,$24,$25
+  503 |  1 a230th.s    445 | Data        | 11 |         |    4 | 00/83B6 : 24 13 32 11 |             db        $24,$13,$32,$11
+  504 |  1 a230th.s    446 | Data        | 11 |         |    4 | 00/83BA : 14 19 1A BF |             db        $14,$19,$1A,$BF
+  505 |  1 a230th.s    447 | Data        | 11 |         |    4 | 00/83BE : 13 18 1A 26 |             db        $13,$18,$1A,$26
+  506 |  1 a230th.s    448 | Data        | 11 |         |    4 | 00/83C2 : 14 16 19 18 |             db        $14,$16,$19,$18
+  507 |  1 a230th.s    449 | Data        | 11 |         |    4 | 00/83C6 : 29 18 1A 24 |             db        $29,$18,$1A,$24
+  508 |  1 a230th.s    450 | Data        | 11 |         |    4 | 00/83CA : 25 14 15 34 |             db        $25,$14,$15,$34
+  509 |  1 a230th.s    451 | Data        | 11 |         |    4 | 00/83CE : 13 22 11 17 |             db        $13,$22,$11,$17
+  510 |  1 a230th.s    452 | Data        | 11 |         |    4 | 00/83D2 : 1A 17 1E AF |             db        $1A,$17,$1E,$AF
+  511 |  1 a230th.s    453 | Data        | 11 |         |    1 | 00/83D6 : 00          |             db        $00            
+  512 |  1 a230th.s    454 | Empty       | 11 |         |    0 | 00/83D7               |                                      
+  513 |  1 a230th.s    455 | Empty       | 11 |         |    0 | 00/83D7               | lookup                               
+  514 |  1 a230th.s    456 | Data        | 11 |         |  256 | 00/83D7 : 00 00 00 00 |             ds        256            
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+      |                    |             |    |         |      |           00 00 00 00 |
+  515 |  1 a230th.s    457 | Empty       | 11 |         |    0 | 00/84D7               |                                      
+------+--------------------+-------------+----+---------+------+-----------------------+-------------------------------------------------------------------

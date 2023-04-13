@@ -1,14 +1,19 @@
+# Apple 30th Anniversary Tribute for Apple II reloaded 
+Here is a program for Apple II to display images on the text screen.
+The original program is: "Apple 30th Anniversary Tribute for Apple II" by Dave Schmenk (https://www.applefritter.com/node/24600#comment-60100).
+It has been disassembled, commented, and ported to the Apple II by J.B. Langston (https://gist.github.com/jblang/5b9e9ba7e6bbfdc64ad2a55759e401d5)
+
+The archive presented here contains a new version of the program on Apple II, with an animation on the image (with a sound) on one hand, and on the other hand (and especially) a program in Delphi (community Edition) to generate on PC the data used in the program on Apple I, from an image.
+
 # Delphi program to convert an image to data to be used in an Apple II program
 
-The Apple II program written by J.B. Langston, is here :
-https://gist.github.com/jblang/5b9e9ba7e6bbfdc64ad2a55759e401d5
 and in this guthub
 
 ## Credits
 
-- J.B. Langston
-- Apple 30th Anniversary Tribute for Apple II by Dave Schmenk
-- Original at https://www.applefritter.com/node/24600#comment-60100
+- Apple 30th Anniversary Tribute for Apple II by Dave Schmenk : Original at https://www.applefritter.com/node/24600#comment-60100
+- J.B. Langston The Apple II program written by J.B. Langston :
+https://gist.github.com/jblang/5b9e9ba7e6bbfdc64ad2a55759e401d5
 
 ## Usage
 
@@ -20,7 +25,7 @@ This archive contains a disk image to be used it with Applewin or your favourite
 But you can also use your own image :
 
 1/ Delphi program :
-Prepare a BMP image file, 40 x 23 pixels, 4 bit / pixel.
+With any photo editor, prepare a BMP image file, 40 x 23 pixels, 4 bit / pixel.
 Run the Delphi program in \Delphi\Win32\Release\
 Drag and drop the BMP file over the window.
 Clic Convert button.
@@ -34,7 +39,7 @@ Add a title :
 
 - first, a byte for the length of the title + 1
 - then, bytes of the title
-  Add a "00" byte
+- Add a "00" byte at the end.
 
 See a230th.s for an example.
 

@@ -7,8 +7,6 @@ The archive presented here contains a new version of the program on Apple II, wi
 
 # Delphi program to convert an image to data to be used in an Apple II program
 
-and in this guthub
-
 ## Credits
 
 - Apple 30th Anniversary Tribute for Apple II by Dave Schmenk : Original at https://www.applefritter.com/node/24600#comment-60100

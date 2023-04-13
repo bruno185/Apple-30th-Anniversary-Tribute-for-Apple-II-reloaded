@@ -23,7 +23,7 @@ This archive contains a disk image to be used it with Applewin or your favourite
 But you can also use your own image :
 
 1/ Delphi program :
-With any photo editor, prepare a BMP image file, 40 x 23 pixels, 4 bit / pixel.
+With any photo editor, prepare a BMP image file, 40 x 23 pixels, 4 bit / pixel (shades of grey)
 Run the Delphi program in \Delphi\Win32\Release\
 Drag and drop the BMP file over the window.
 Clic Convert button.
